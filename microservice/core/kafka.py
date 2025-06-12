@@ -1,6 +1,6 @@
 from kafka import KafkaProducer
 import json
-from app.core.config import Settings
+from microservice.core.config import Settings
 
 class KafkaProducer:
     def __init__(self, settings: Settings):

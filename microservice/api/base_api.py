@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.core.monitoring import instrumentator
-from app.core.logging import setup_logging
+from microservice.core.monitoring import instrumentator
+from microservice.core.logging import setup_logging
 
 app = FastAPI(title="My Microservice")
 

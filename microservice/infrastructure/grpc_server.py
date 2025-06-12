@@ -1,7 +1,7 @@
 from concurrent import futures
 import grpc
-from app.core.config import settings
-from app.core.logging import logger
+from microservice.core.config import settings
+from microservice.core.logging import logger
 
 class BaseGRPCServer:
     def __init__(self, service, servicer):

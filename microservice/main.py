@@ -3,10 +3,10 @@ from prometheus_client import Counter, Histogram
 import time
 import logging
 from pythonjsonlogger import jsonlogger
-from app.core.config import Settings
-from app.core.database import Database
-from app.core.kafka import KafkaProducer
-from app.core.minio import MinioClient
+from microservice.core.config import Settings
+from microservice.core.database import Database
+from microservice.core.kafka import KafkaProducer
+from microservice.core.minio import MinioClient
 
 # Настройка логирования
 logger = logging.getLogger()

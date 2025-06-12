@@ -2,7 +2,7 @@ import logging
 import sys
 import json
 from pythonjsonlogger import jsonlogger
-from app.core.config import settings
+from microservice.core.config import settings
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
     def add_fields(self, log_record, record, message_dict):

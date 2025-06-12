@@ -1,8 +1,8 @@
 from aiokafka import AIOKafkaConsumer
 import asyncio
 import json
-from app.core.config import settings
-from app.core.logging import logger
+from microservice.core.config import settings
+from microservice.core.logging import logger
 
 async def consume():
     consumer = AIOKafkaConsumer(

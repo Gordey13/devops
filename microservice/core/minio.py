@@ -1,5 +1,5 @@
 from minio import Minio
-from app.core.config import Settings
+from microservice.core.config import Settings
 
 class MinioClient:
     def __init__(self, settings: Settings):

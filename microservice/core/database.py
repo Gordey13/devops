@@ -1,5 +1,5 @@
 import asyncpg
-from app.core.config import Settings
+from microservice.core.config import Settings
 
 class Database:
     def __init__(self, settings: Settings):

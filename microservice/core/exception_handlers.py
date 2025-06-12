@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from app.core.config import settings
+from microservice.core.config import settings
 
 def setup_exception_handlers(app: FastAPI):
     @app.exception_handler(StarletteHTTPException)
