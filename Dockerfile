@@ -1,5 +1,5 @@
-# Базовый образ
-FROM python:3.11-slim-bullseye
+# Этап сборки
+FROM python:3.9-slim as builder
 
 # Установка зависимостей
 RUN apt-get update && apt-get install -y \
@@ -10,16 +10,30 @@ RUN apt-get update && apt-get install -y \
 # Рабочая директория
 WORKDIR /app
 
-# Копирование зависимостей
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Копирование приложения
+RUN apt-get update && apt-get install -y gcc libpq-dev
+
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# Финальный образ
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Установка зависимостей
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+# Копирование кода
 COPY . .
 
-# Пользователь без привилегий
-RUN useradd -m myuser
-USER myuser
+# Настройка среды
+ENV PYTHONPATH=/app
+ENV PROMETHEUS_MULTIPROC_DIR=/tmp
 
 # Запуск приложения
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8000"] 
+CMD ["sh", "-c", "uvicorn app.api.base_api:app --host 0.0.0.0 --port 8000 & python app/consumers/kafka_consumer.py"] 

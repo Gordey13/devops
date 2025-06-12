@@ -1,12 +1,20 @@
 stages:
-  - build
   - test
+  - build
   - deploy
 
 variables:
   HELM_CHART: "my-microservice"
   KUBE_NAMESPACE: "production"
   ARGOCD_SERVER: "argocd.your-domain.com"
+  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+
+test:
+  stage: test
+  image: python:3.9
+  script:
+    - pip install -r requirements.txt
+    - pytest
 
 build:
   stage: build
@@ -31,4 +39,10 @@ deploy-to-argocd:
     - argocd app sync $HELM_CHART
     - argocd app wait $HELM_CHART --health
   only:
-    - main 
+    - main
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploy to production"
+  environment: production 
