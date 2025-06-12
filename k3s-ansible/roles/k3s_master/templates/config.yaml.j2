@@ -1,0 +1,15 @@
+token: {{ k3s_token }}
+datastore-endpoint: {{ k3s_datastore_endpoint }}
+cluster-cidr: {{ k3s_cluster_cidr }}
+service-cidr: {{ k3s_service_cidr }}
+cluster-dns: {{ k3s_cluster_dns }}
+tls-san:
+{% for san in k3s_tls_sans %}
+  - {{ san }}
+{% endfor %}
+disable:
+  - traefik
+  - servicelb
+flannel-backend: wireguard-native
+node-taint:
+  - CriticalAddonsOnly=true:NoExecute 

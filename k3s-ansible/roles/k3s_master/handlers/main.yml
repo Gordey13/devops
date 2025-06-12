@@ -1,0 +1,19 @@
+---
+- name: restart docker
+  service:
+    name: docker
+    state: restarted
+    enabled: yes
+
+- name: restart k3s
+  service:
+    name: k3s
+    state: restarted
+    enabled: yes
+
+- name: reload systemd and restart k3s
+  systemd:
+    daemon_reload: yes
+    name: k3s
+    state: restarted
+    enabled: yes 

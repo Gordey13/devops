@@ -1,0 +1,22 @@
+---
+# Параметры кластера
+k3s_version: v1.29.0+k3s1
+k3s_token: "my-strong-token-123"
+k3s_datastore_endpoint: "mysql://user:password@tcp(db-host:3306)/k3s"
+
+# Сетевые настройки
+k3s_cluster_cidr: "10.42.0.0/16"
+k3s_service_cidr: "10.43.0.0/16"
+k3s_cluster_dns: "10.43.0.10"
+
+# TLS SANs для сертификата API
+k3s_tls_sans:
+  - "k3s.example.com"
+  - "192.168.1.100" # Виртуальный IP
+
+# Опции для systemd
+k3s_exec_flags:
+  - "--disable=traefik"
+  - "--disable=servicelb"
+  - "--flannel-backend=wireguard-native"
+  - "--node-taint CriticalAddonsOnly=true:NoExecute" 

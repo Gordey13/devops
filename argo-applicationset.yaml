@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ .Chart.Name }}-apps
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - cluster: production
+        url: https://kubernetes.default.svc
+      - cluster: staging
+        url: https://kubernetes.default.svc
+  template:
+    metadata:
+      name: '{{ .Chart.Name }}-{{cluster}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://gitlab.com/your-repo.git'
+        targetRevision: HEAD
+        path: helm/{{ .Chart.Name }}
+        helm:
+          valueFiles:
+            - values-{{cluster}}.yaml
+      destination:
+        server: '{{url}}'
+        namespace: {{ .Chart.Name }}
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true 

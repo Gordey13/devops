@@ -1,0 +1,88 @@
+---
+- name: Установка зависимостей
+  apt:
+    name:
+      - curl
+      - gnupg
+      - software-properties-common
+      - nfs-common
+      - apparmor
+      - apparmor-utils
+    state: present
+    update_cache: yes
+
+- name: Добавление репозитория Docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker-ce
+
+- name: Установка Docker
+  apt:
+    name: 
+      - containerd.io
+      - docker-ce
+      - docker-ce-cli
+    state: present
+
+- name: Настройка Docker
+  copy:
+    content: |
+      {
+        "exec-opts": ["native.cgroupdriver=systemd"],
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "100m"
+        },
+        "storage-driver": "overlay2"
+      }
+    dest: /etc/docker/daemon.json
+  notify: restart docker
+
+- name: Загрузка и установка k3s
+  shell: |
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION={{ k3s_version }} INSTALL_K3S_EXEC="server \
+      --token {{ k3s_token }} \
+      --datastore-endpoint '{{ k3s_datastore_endpoint }}' \
+      --cluster-cidr {{ k3s_cluster_cidr }} \
+      --service-cidr {{ k3s_service_cidr }} \
+      --cluster-dns {{ k3s_cluster_dns }} \
+      --tls-san {{ item }} \
+      {{ k3s_exec_flags | join(' ') }}" sh -
+  args:
+    creates: /usr/local/bin/k3s
+  loop: "{{ k3s_tls_sans }}"
+
+- name: Копирование конфигурационного файла
+  template:
+    src: config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
+  notify: restart k3s
+
+- name: Создание systemd сервиса
+  template:
+    src: k3s.service.j2
+    dest: /etc/systemd/system/k3s.service
+  notify: reload systemd and restart k3s
+
+- name: Копирование kubeconfig для пользователя
+  copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "{{ ansible_env.HOME }}/.kube/config"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0600
+
+- name: Установка kubectl
+  snap:
+    name: kubectl
+    classic: yes
+    state: present
+
+- name: Проверка состояния кластера
+  command: kubectl get nodes
+  register: k3s_status
+  changed_when: false
+  until: k3s_status.rc == 0
+  retries: 10
+  delay: 10 

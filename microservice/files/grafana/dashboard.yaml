@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-grafana-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  microservice-dashboard.json: |-
+    {
+      "title": "Microservice Dashboard",
+      "panels": [...],
+      "__inputs": [...],
+      "__requires": [...]
+    }
